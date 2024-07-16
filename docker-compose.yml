@@ -24,7 +24,7 @@ services:
 
   order:
     container_name: order
-    image: order-ms
+    image: mabenuz/order-ms
     expose:
       - 3000
     restart: unless-stopped
@@ -39,7 +39,7 @@ services:
 
   kitchen:
     container_name: kitchen
-    image: kitchen-ms
+    image: mabenuz/kitchen-ms
     expose:
       - 3000
     restart: unless-stopped
@@ -53,7 +53,7 @@ services:
 
   inventory:
     container_name: inventory
-    image: inventory-ms
+    image: mabenuz/inventory-ms
     expose:
       - 3000
     restart: unless-stopped
@@ -67,7 +67,7 @@ services:
 
   purchase:
     container_name: purchase
-    image: purchase-ms
+    image: mabenuz/purchase-ms
     expose:
       - 3000
     restart: unless-stopped
