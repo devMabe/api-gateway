@@ -1,0 +1,127 @@
+version: "3"
+services:
+  api-gateway:
+    container_name: api-gateway
+    depends_on:
+      - inventory
+      - order
+      - kitchen
+      - purchase
+      - db
+      - redis
+    image: nginx
+    expose:
+      - 80
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - alegra-net
+    restart: unless-stopped
+    env_file:
+      - ./config/ms.env
+
+  order:
+    container_name: order
+    image: order-ms
+    expose:
+      - 3000
+    restart: unless-stopped
+    env_file:
+      - ./config/ms.env
+    environment:
+      PORT: 3000
+    networks:
+      - alegra-net
+      - db
+      - alegra-redis
+
+  kitchen:
+    container_name: kitchen
+    image: kitchen-ms
+    expose:
+      - 3000
+    restart: unless-stopped
+    env_file:
+      - ./config/ms.env
+    environment:
+      PORT: 3001
+    networks:
+      - alegra-net
+      - db
+
+  inventory:
+    container_name: inventory
+    image: inventory-ms
+    expose:
+      - 3000
+    restart: unless-stopped
+    env_file:
+      - ./config/ms.env
+    environment:
+      PORT: 3002
+    networks:
+      - alegra-net
+      - db
+
+  purchase:
+    container_name: purchase
+    image: purchase-ms
+    expose:
+      - 3000
+    restart: unless-stopped
+    env_file:
+      - ./config/ms.env
+    environment:
+      PORT: 3003
+    networks:
+      - alegra-net
+      - db
+
+  db:
+    container_name: db
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    networks:
+      - db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@db:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    networks:
+      - db
+
+  redis:
+    hostname: redis
+    restart: unless-stopped
+    image: redis:6-alpine
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+    networks:
+      - alegra-redis
+
+networks:
+  alegra-net:
+  db:
+  alegra-redis:
+volumes:
+  mongo-data:
